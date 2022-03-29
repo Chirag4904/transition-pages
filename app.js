@@ -34,13 +34,14 @@ const leaveAnimation = (current, done) => {
 	);
 };
 
-const enterAnimation = (current, done) => {
+const enterAnimation = (current, done, gradient) => {
 	const product = current.querySelector(".image-container");
 	const text = current.querySelector(".showcase-text");
 	const circles = current.querySelectorAll(".circle");
 	const arrow = current.querySelector(".showcase-arrow");
 	return (
 		tlEnter.fromTo(arrow, { opacity: 0, y: 50 }, { opacity: 1, y: 0 }),
+		tlEnter.to("body", { background: gradient }, "<"),
 		tlEnter.fromTo(
 			product,
 			{ opacity: 0, y: -100 },
@@ -64,11 +65,18 @@ const enterAnimation = (current, done) => {
 };
 
 barba.init({
+	preventRunning: true,
 	transitions: [
 		//showcase transition
 		{
 			name: "default",
-			preventRunning: true,
+			once(data) {
+				const done = this.async();
+				let next = data.next.container;
+				let gradient = getGradient(data.next.namespace);
+				gsap.set("body", { background: gradient });
+				enterAnimation(next, done, gradient);
+			},
 			leave(data) {
 				// create your stunning leave animation here
 				const done = this.async();
@@ -79,8 +87,20 @@ barba.init({
 				// create your amazing enter animation here
 				const done = this.async();
 				let next = data.next.container;
-				enterAnimation(next, done);
+				let gradient = getGradient(data.next.namespace);
+				enterAnimation(next, done, gradient);
 			},
 		},
 	],
 });
+
+function getGradient(name) {
+	switch (name) {
+		case "handbag":
+			return "linear-gradient(260deg,#b75d62,#754d4f)";
+		case "boot":
+			return "linear-gradient(260deg,#5d8cb7,#4c4f70)";
+		case "hat":
+			return "linear-gradient(260deg,#b27a5c,#7f5450)";
+	}
+}
